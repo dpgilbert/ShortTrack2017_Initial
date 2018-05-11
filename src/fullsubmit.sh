@@ -1,7 +1,7 @@
 #!/bin/bash
 
-condor_submit condor_DY.cmd
-condor_submit condor_TTSL_fromT.cmd
-condor_submit condor_TTSL_fromTbar.cmd
-condor_submit condor_TTDL.cmd
-condor_submit condor_WJets.cmd
+condor_submit condor/condor_CMS4ST_DYHT200to400.cmd
+condor_submit condor/condor_CMS4ST_DYHT800to1200.cmd
+condor_submit condor/condor_CMS4ST_TTSL_FromT.cmd
+condor_submit condor/condor_CMS4ST_QCDHT300to500.cmd
+condor_submit condor/condor_CMS4ST_QCDHT1000to1500.cmd

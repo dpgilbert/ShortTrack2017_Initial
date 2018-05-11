@@ -62,7 +62,7 @@ when_to_transfer_output = ON_EXIT
 #In fact, some sites may do weird things like renaming it and such.
 transfer_input_files=${INPUT}
 +DESIRED_Sites=\"${SITE}\"
-Requirements = (Machine != \"uaf-1.t2.ucsd.edu\")
+Requirements = (Machine != \"uaf-1.t2.ucsd.edu\") && (Machine != \"uaf-5.t2.ucsd.edu\")
 +Owner = undefined
 log=${LOG}
 output=${OUT}

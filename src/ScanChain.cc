@@ -40,8 +40,8 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
   TH1F h_genDRSTC("h_genDRSTC","STC DR to Nearest Charged Status 1, p_{T} > 1 GeV",15,0,0.15);
   map<int, TH1F*> histsGenDRST;
   map<int, TH1F*> histsGenDRSTC;
-  TH1F h_PFDRST("h_PFDRST","ST DR to Nearest PF Candidate",30,0,0.3);
-  TH1F h_PFDRSTC("h_PFDRSTC","ST DR to Nearest PF Candidate",30,0,0.3);
+  TH1F h_PFDRST("h_PFDRST","ST DR to Nearest PF Candidate",15,0,0.15);
+  TH1F h_PFDRSTC("h_PFDRSTC","ST DR to Nearest PF Candidate",15,0,0.15);
   map<int, TH1F*> histsPFDRSTC;
   map<int, TH1F*> histsPFDRST;
 
@@ -129,11 +129,11 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
     histsRecoDRST_e[genID].push_back((TH1F*) h_recoDR3_e.Clone(Form("h_recoDR3STe_%d",genID)));
     histsRecoDRST_e[genID].push_back((TH1F*) h_recoDR3_e.Clone(Form("h_recoDR4STe_%d",genID)));
 
-    histsRecoDRSTC_e[genID].push_back((TH1F*) h_recoDR0_e.Clone(Form("h_recoDR0STe_%d",genID)));
-    histsRecoDRSTC_e[genID].push_back((TH1F*) h_recoDR1_e.Clone(Form("h_recoDR1STe_%d",genID)));
-    histsRecoDRSTC_e[genID].push_back((TH1F*) h_recoDR2_e.Clone(Form("h_recoDR2STe_%d",genID)));
-    histsRecoDRSTC_e[genID].push_back((TH1F*) h_recoDR3_e.Clone(Form("h_recoDR3STe_%d",genID)));
-    histsRecoDRSTC_e[genID].push_back((TH1F*) h_recoDR3_e.Clone(Form("h_recoDR4STe_%d",genID)));
+    histsRecoDRSTC_e[genID].push_back((TH1F*) h_recoDR0_e.Clone(Form("h_recoDR0STCe_%d",genID)));
+    histsRecoDRSTC_e[genID].push_back((TH1F*) h_recoDR1_e.Clone(Form("h_recoDR1STCe_%d",genID)));
+    histsRecoDRSTC_e[genID].push_back((TH1F*) h_recoDR2_e.Clone(Form("h_recoDR2STCe_%d",genID)));
+    histsRecoDRSTC_e[genID].push_back((TH1F*) h_recoDR3_e.Clone(Form("h_recoDR3STCe_%d",genID)));
+    histsRecoDRSTC_e[genID].push_back((TH1F*) h_recoDR3_e.Clone(Form("h_recoDR4STCe_%d",genID)));
 
     histsRecoDRST_mu[genID].push_back((TH1F*) h_recoDR0_mu.Clone(Form("h_recoDR0STmu_%d",genID)));
     histsRecoDRST_mu[genID].push_back((TH1F*) h_recoDR1_mu.Clone(Form("h_recoDR1STmu_%d",genID)));
@@ -141,11 +141,11 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
     histsRecoDRST_mu[genID].push_back((TH1F*) h_recoDR3_mu.Clone(Form("h_recoDR3STmu_%d",genID)));
     histsRecoDRST_mu[genID].push_back((TH1F*) h_recoDR3_mu.Clone(Form("h_recoDR4STmu_%d",genID)));
 
-    histsRecoDRSTC_mu[genID].push_back((TH1F*) h_recoDR0_mu.Clone(Form("h_recoDR0STmu_%d",genID)));
-    histsRecoDRSTC_mu[genID].push_back((TH1F*) h_recoDR1_mu.Clone(Form("h_recoDR1STmu_%d",genID)));
-    histsRecoDRSTC_mu[genID].push_back((TH1F*) h_recoDR2_mu.Clone(Form("h_recoDR2STmu_%d",genID)));
-    histsRecoDRSTC_mu[genID].push_back((TH1F*) h_recoDR3_mu.Clone(Form("h_recoDR3STmu_%d",genID)));
-    histsRecoDRSTC_mu[genID].push_back((TH1F*) h_recoDR3_mu.Clone(Form("h_recoDR4STmu_%d",genID)));
+    histsRecoDRSTC_mu[genID].push_back((TH1F*) h_recoDR0_mu.Clone(Form("h_recoDR0STCmu_%d",genID)));
+    histsRecoDRSTC_mu[genID].push_back((TH1F*) h_recoDR1_mu.Clone(Form("h_recoDR1STCmu_%d",genID)));
+    histsRecoDRSTC_mu[genID].push_back((TH1F*) h_recoDR2_mu.Clone(Form("h_recoDR2STCmu_%d",genID)));
+    histsRecoDRSTC_mu[genID].push_back((TH1F*) h_recoDR3_mu.Clone(Form("h_recoDR3STCmu_%d",genID)));
+    histsRecoDRSTC_mu[genID].push_back((TH1F*) h_recoDR3_mu.Clone(Form("h_recoDR4STCmu_%d",genID)));
 
     histsLayerST[genID].push_back((TH1F*) h_layers0.Clone(Form("h_layers0ST_%d",genID)));
     histsLayerST[genID].push_back((TH1F*) h_layers1.Clone(Form("h_layers1ST_%d",genID)));
@@ -180,7 +180,7 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
 
   // Loop over events
   for (unsigned int event = 0; event < event_max; event++) {
-    if ( (event+1) % 1000 == 0 ) cout << 100. * event / event_max << "%" << endl;
+    if ( (event+1) % 10000 == 0 ) cout << 100. * event / event_max << "%" << endl;
     tree->LoadTree(event);
     cms3.GetEntry(event);
     
@@ -223,10 +223,10 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
 	  minDR = dr;
 	}
       }
-      const int genDR = minDR;
-      if (genDR > 0.06) genPdgId = 0; // Only count matches at DR < 0.06 (the average DR)
+      const float genDR = minDR;
+      if (genDR > 0.1) genPdgId = 0; // Only count matches at DR < 0.1
 
-      if (genPdgId > 3000) genPdgId = 3000; // Merge all strange baryons
+      if (unlikely(genPdgId > 3000)) genPdgId = 3000; // Merge all strange baryons
       const int parentageIndex = genIdx >= 0 ? ParentageIndex(abs(cms3.genps_id_mother().at(genIdx)),cms3.genps_status().at(cms3.genps_idx_mother().at(genIdx))) : 0;
 
       if (unlikely(histsLayerST.count(genPdgId) == 0)) {cout << "Found a matching genID that was not on the list: " << genPdgId << endl; return;}
@@ -244,7 +244,7 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
 
       const float nearestPF_DR = cms3.isotracks_nearestPF_DR().at(i_it);
       const int nearestPF_id = abs(cms3.isotracks_nearestPF_id().at(i_it));
-      const bool nearestPFSel = ! (nearestPF_DR < 0.1 && (nearestPF_id == 11 || nearestPF_id == 13));
+      const bool nearestPFSel = !(nearestPF_DR < 0.1 && (nearestPF_id == 11 || nearestPF_id == 13));
 
       // Find nearest reco leptons
       float minRecoDR_e = 100;
@@ -320,7 +320,7 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
       const bool FullIsoSelSTC = NeuIso0p05SelSTC && NeuRelIso0p05SelSTC && isoSelSTC && relisoSelSTC && notLepOverlapSel;
 
       if (!FullIsoSelSTC) continue;
-      if (!FullIsoSel && isShort) {
+      if (FullIsoSel && isShort) {
 	hvLayerST.at(2)->Fill(Nlayers);
 	hvSigST.at(2)->Fill(inner6);
 	hvRecoDReST.at(2)->Fill(minRecoDR_e);
@@ -342,7 +342,7 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
       // Quality
       const bool pixLayersSelTight = isotracks_pixelLayersWithMeasurement().at(i_it) >= 3;
       const bool pixLayersSelLoose = isotracks_pixelLayersWithMeasurement().at(i_it) >= 2;
-      const bool pixLayersSel = isL ? pixLayersSelLoose : pixLayersSelTight; // Always apply 2 layer selection to long tracks
+      const bool pixLayersSel = Nlayers > 6 ? pixLayersSelLoose : pixLayersSelTight; // Always apply 2 layer selection to long tracks
       const bool lostInnerHitsSel = isotracks_numberOfLostHitsInner().at(i_it) == 0;
       const float pterr = cms3.isotracks_pterr().at(i_it);
       const float pterrOverPt2 = pterr / (pt*pt);
@@ -355,16 +355,16 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
       // Assume long track, mostly since STC will usually be long      
       bool pterrSel = pterrSelTight;
       bool pterrSelSTC = pterrSelTightSTC;
-      if (isP) {pterrSel = pterrSelLoose; pterrSelSTC = pterrSelLooseSTC;}
-      else if (isS) {pterrSel = pterrSelMedium; pterrSelSTC = pterrSelMediumSTC;}
+      if (PixEqTracker) {pterrSel = pterrSelLoose; pterrSelSTC = pterrSelLooseSTC;}
+      else if (Nlayers < 7) {pterrSel = pterrSelMedium; pterrSelSTC = pterrSelMediumSTC;}
       const bool isHighPurity = cms3.isotracks_isHighPurityTrack().at(i_it);
       const float dxy = fabs(cms3.isotracks_dxy().at(i_it));
       const bool dxySelLoose = dxy < 0.02;
       const bool dxySelLooseSTC = dxy < 0.02 * STC;
       const bool dxySelTight = dxy < 0.01;
       const bool dxySelTightSTC = dxy < 0.01 * STC;
-      const bool dxySel = isP ? dxySelLoose : dxySelTight;
-      const bool dxySelSTC = isP ? dxySelLooseSTC : dxySelTightSTC;
+      const bool dxySel = PixEqTracker ? dxySelLoose : dxySelTight;
+      const bool dxySelSTC = PixEqTracker ? dxySelLooseSTC : dxySelTightSTC;
       const float dz = fabs(cms3.isotracks_dz().at(i_it));
       const bool dzSel = dz < 0.05;
       const bool dzSelSTC = dz < 0.05*STC;
@@ -374,9 +374,13 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
       const bool QualityTrackLoose = pixLayersSelLoose && lostInnerHitsSel && pterrSel && isHighPurity && dxySel && dzSel;
       const bool QualityTrackSTCLoose =  pixLayersSelLoose && lostInnerHitsSel && pterrSelSTC && isHighPurity && dxySelSTC && dzSelSTC;
 
-      if (QualityTrackSTCLoose) {
+      if (QualityTrackSTCLoose) {	
 	hvLayerSTC.at(3)->Fill(Nlayers);
 	hvSigSTC.at(3)->Fill(inner6);
+	hvRecoDReSTC.at(3)->Fill(minRecoDR_e);
+	hvRecoDRmuSTC.at(3)->Fill(minRecoDR_mu);
+	histsGenDRSTC[3]->Fill(genDR);
+	histsPFDRSTC[3]->Fill(nearestPF_DR);
 	if (genPdgId == 11) histsMotherSTC["e3"]->Fill(parentageIndex);
 	else if (genPdgId == 13) {
 	  histsMotherSTC["mu3"]->Fill(parentageIndex);
@@ -385,6 +389,10 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
 	if (QualityTrackSTC) {
 	  hvLayerSTC.at(4)->Fill(Nlayers);
 	  hvSigSTC.at(4)->Fill(inner6);
+	  hvRecoDReSTC.at(4)->Fill(minRecoDR_e);
+	  hvRecoDRmuSTC.at(4)->Fill(minRecoDR_mu);
+	  histsGenDRSTC[4]->Fill(genDR);
+	  histsPFDRSTC[4]->Fill(nearestPF_DR);
 	  if (genPdgId == 11) histsMotherSTC["e4"]->Fill(parentageIndex);
 	  else if (genPdgId == 13)histsMotherSTC["mu4"]->Fill(parentageIndex);
 	}
@@ -392,11 +400,19 @@ void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
       if (isShort && QualityTrackLoose && FullIsoSel) {
 	hvLayerST.at(3)->Fill(Nlayers);
 	hvSigST.at(3)->Fill(inner6);
+	hvRecoDReST.at(3)->Fill(minRecoDR_e);
+	hvRecoDRmuST.at(3)->Fill(minRecoDR_mu);
+	histsGenDRST[3]->Fill(genDR);
+	histsPFDRSTC[3]->Fill(nearestPF_DR);
 	if (genPdgId == 11) histsMotherST["e3"]->Fill(parentageIndex);
 	else if (genPdgId == 13) histsMotherST["mu3"]->Fill(parentageIndex);
 	if (QualityTrack) {
 	  hvLayerST.at(4)->Fill(Nlayers);
 	  hvSigST.at(4)->Fill(inner6);
+	  hvRecoDReST.at(4)->Fill(minRecoDR_e);
+	  hvRecoDRmuST.at(4)->Fill(minRecoDR_mu);
+	  histsGenDRST[4]->Fill(genDR);
+	  histsPFDRSTC[4]->Fill(nearestPF_DR);
 	  if (genPdgId == 11) histsMotherST["e4"]->Fill(parentageIndex);
 	  else if (genPdgId == 13) histsMotherST["mu4"]->Fill(parentageIndex);
 	}
