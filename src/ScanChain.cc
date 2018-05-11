@@ -1,4 +1,4 @@
-// A cms3 looper to compare delta-beta and effective area pileup corrections
+// A cms4 looper to examine the isotrack collection in 12Apr2018 MINIAOD (2017 MC)
 
 #include "../interface/ScanChain.h"
 
