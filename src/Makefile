@@ -36,17 +36,17 @@ DIR = ./
 
 SOURCES = $(wildcard *.cc)
 OBJECTS = $(SOURCES:.cc=.o)
-LIB = libCMS3Looper.so
+LIB = libCMS4Looper.so
 
 CORESOURCES = $(wildcard ../../CORE/*.cc) $(wildcard ../../CORE/Tools/*.cc) 
 COREOBJECTS = $(CORESOURCES:.cc=.o) 
-CORELIB = libCMS3LooperCORE.so
+CORELIB = libCMS4LooperCORE.so
 
 DICT = LinkDef_out.o
 
 LIBS = $(LIB) $(CORELIB)
 
-EXE = CMS3Looper.exe
+EXE = CMS4Looper.exe
 
 #
 # how to make it

@@ -5,7 +5,7 @@
 using namespace std;
 using namespace tas;
 
-bool CMS3Looper::CalorimeterVeto(const vector<unsigned int> &ecal, const vector<unsigned int> &hcal) {
+bool CMS4Looper::CalorimeterVeto(const vector<unsigned int> &ecal, const vector<unsigned int> &hcal) {
   for (vector<unsigned int>::const_iterator ecal_it = ecal.begin(); ecal_it != ecal.end(); ecal_it++) {
     if (*ecal_it > 0) return true;
   }
@@ -15,7 +15,7 @@ bool CMS3Looper::CalorimeterVeto(const vector<unsigned int> &ecal, const vector<
   return false;
 }
 
-int CMS3Looper::ParentageIndex(int MotherPdgId, int MotherStatus) {
+int CMS4Looper::ParentageIndex(int MotherPdgId, int MotherStatus) {
   if (MotherStatus == 4 || MotherStatus == 44) return 0; // ISR photon split
   if ( (MotherPdgId < 6 || MotherPdgId == 21 || MotherPdgId == 22 || MotherPdgId == 15 || MotherPdgId == 13 || MotherPdgId == 11) && MotherStatus > 20 ) return 1; // FSR photon split
   if ((MotherPdgId > 100 && MotherPdgId < 400) && MotherStatus == 2) return 2; // Light meson decay
@@ -28,7 +28,7 @@ int CMS3Looper::ParentageIndex(int MotherPdgId, int MotherStatus) {
   return 0; // Other
 }
 
-void CMS3Looper::ScanChain (TChain * tree, const char* outname, const int STC ) {
+void CMS4Looper::ScanChain (TChain * tree, const char* outname, const int STC ) {
   TH1::SetDefaultSumw2(true);
 
   // Book histograms
@@ -490,8 +490,8 @@ int main (int argc, char ** argv) {
   cout << "Added " << filename << " to TChain" << endl;
 
 
-  CMS3Looper cms3l;
-  if (argc > 3) cms3l.ScanChain(chain,outfileid,atoi(argv[3]));
-  else cms3l.ScanChain(chain,outfileid);
+  CMS4Looper cms4l;
+  if (argc > 3) cms4l.ScanChain(chain,outfileid,atoi(argv[3]));
+  else cms4l.ScanChain(chain,outfileid);
   return 0;
 }

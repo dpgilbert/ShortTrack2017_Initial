@@ -29,10 +29,10 @@
 #define likely(x)       __builtin_expect((x),1)
 #define unlikely(x)     __builtin_expect((x),0)
 
-class CMS3Looper {
+class CMS4Looper {
  public:
-  CMS3Looper() {};
-  ~CMS3Looper() {};
+  CMS4Looper() {};
+  ~CMS4Looper() {};
   
   void ScanChain(TChain *, const char* outname = "TestSample", const int STC=3);
 
