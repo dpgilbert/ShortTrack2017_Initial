@@ -21,8 +21,8 @@ endif
 #endif
 
 CC = g++
-CMSROOT = ./
-INCLUDE = $(shell root-config --cflags) -I$(CMSROOT) -I$(CMSROOT)/CORE
+CMSROOT = ../
+INCLUDE = $(shell root-config --cflags) -I$(CMSROOT)/interface
 CFLAGS = -Wall -Wno-unused-function -g -O2 -fPIC $(INCLUDE) $(EXTRACFLAGS)
 ROOTLIBS = $(shell root-config --ldflags --cflags --libs) -lTMVA #-lEG -lGenVector
 COREDIR = CORE

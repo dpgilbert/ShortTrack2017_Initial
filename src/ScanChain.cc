@@ -1,6 +1,6 @@
 // A cms3 looper to compare delta-beta and effective area pileup corrections
 
-#include "ScanChain.h"
+#include "../interface/ScanChain.h"
 
 using namespace std;
 using namespace tas;
@@ -71,11 +71,6 @@ void CMS3Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
     histsGenDRSTC[i] = (TH1F*) h_genDRSTC.Clone(Form("h_genDR_STC%d",i));
     histsPFDRST[i] = (TH1F*) h_PFDRST.Clone(Form("h_PFDR_ST%d",i));
     histsPFDRSTC[i] = (TH1F*) h_PFDRSTC.Clone(Form("h_PFDR_STC%d",i));
-
-    histsRecoDRST["e"+to_string(i)] = (TH1F*) h_recoDR_eST.Clone(Form("h_recoDR_eST%d",i));
-    histsRecoDRST["mu"+to_string(i)] = (TH1F*) h_recoDR_muST.Clone(Form("h_recoDR_muST%d",i));
-    histsRecoDRSTC["e"+to_string(i)] = (TH1F*) h_recoDR_eSTC.Clone(Form("h_recoDR_eSTC%d",i));
-    histsRecoDRSTC["mu"+to_string(i)] = (TH1F*) h_recoDR_muSTC.Clone(Form("h_recoDR_muSTC%d",i));
 
     histsMotherST["e"+to_string(i)] = (TH1F*) h_mother_eST.Clone(Form("h_mother_eST%d",i));
     histsMotherSTC["e"+to_string(i)] = (TH1F*) h_mother_eSTC.Clone(Form("h_mother_eSTC%d",i));
@@ -252,17 +247,17 @@ void CMS3Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
       const bool nearestPFSel = ! (nearestPF_DR < 0.1 && (nearestPF_id == 11 || nearestPF_id == 13));
 
       // Find nearest reco leptons
-      minRecoDR_e = 100;
+      float minRecoDR_e = 100;
       for (unsigned int i_el = 0; i_el < cms3.els_p4().size(); i_el++) {
 	if (cms3.els_p4().at(i_el).pt() < 10) continue;
 	//if (!electronID(i_el,id_level_t::HAD_veto_noiso_v4) || !electronID(i_el,id_level_t::HAD_veto_v4)) continue;
-	if (float dr = DeltaR(cms3.els_p4().at(i_el),cms3.isotracks_p4().at(i_it)) < minRecoDR) {minRecoDR_e = dr;}
+	if (float dr = DeltaR(cms3.els_p4().at(i_el),cms3.isotracks_p4().at(i_it)) < minRecoDR_e) {minRecoDR_e = dr;}
       }
-      minRecoDR_mu = 100;
+      float minRecoDR_mu = 100;
       for (unsigned int i_mu = 0; i_mu < cms3.mus_p4().size(); i_mu++) {
 	if (cms3.mus_p4().at(i_mu).pt() < 10) continue;
 	//	if (!muonID(i_mu,id_level_t::HAD_loose_noiso_v4) || muonID(i_mu,id_level_t::HAD_loose_v4)) continue;
-	if (float dr = DeltaR(cms3.mus_p4().at(i_mu),cms3.isotracks_p4().at(i_it)) < minRecoDR) {minRecoDR_mu = dr;}
+	if (float dr = DeltaR(cms3.mus_p4().at(i_mu),cms3.isotracks_p4().at(i_it)) < minRecoDR_mu) {minRecoDR_mu = dr;}
       }
 
       const bool nearestRecoSel = !(minRecoDR_mu < 0.1); // Only veto Reco muons for now
@@ -442,15 +437,41 @@ void CMS3Looper::ScanChain (TChain * tree, const char* outname, const int STC ) 
       (*hist)->Write();
     }
   }
+  for (map<int, vector<TH1F*> >::const_iterator pair = histsRecoDRST_e.begin(); pair != histsRecoDRST_e.end(); pair++) {
+    const vector<TH1F*>& toWrite = pair->second;
+    for (vector<TH1F*>::const_iterator hist = toWrite.begin(); hist != toWrite.end(); hist++) {
+      (*hist)->Write();
+    }
+  }
+  for (map<int, vector<TH1F*> >::const_iterator pair = histsRecoDRSTC_e.begin(); pair != histsRecoDRSTC_e.end(); pair++) {
+    const vector<TH1F*>& toWrite = pair->second;
+    for (vector<TH1F*>::const_iterator hist = toWrite.begin(); hist != toWrite.end(); hist++) {
+      (*hist)->Write();
+    }
+  }
+  for (map<int, vector<TH1F*> >::const_iterator pair = histsRecoDRST_mu.begin(); pair != histsRecoDRST_mu.end(); pair++) {
+    const vector<TH1F*>& toWrite = pair->second;
+    for (vector<TH1F*>::const_iterator hist = toWrite.begin(); hist != toWrite.end(); hist++) {
+      (*hist)->Write();
+    }
+  }
+  for (map<int, vector<TH1F*> >::const_iterator pair = histsRecoDRSTC_mu.begin(); pair != histsRecoDRSTC_mu.end(); pair++) {
+    const vector<TH1F*>& toWrite = pair->second;
+    for (vector<TH1F*>::const_iterator hist = toWrite.begin(); hist != toWrite.end(); hist++) {
+      (*hist)->Write();
+    }
+  }
   for (map<int, TH1F*>::const_iterator pair = histsGenDRST.begin(); pair != histsGenDRST.end(); pair++) {(pair->second)->Write();}
   for (map<int, TH1F*>::const_iterator pair = histsGenDRSTC.begin(); pair != histsGenDRSTC.end(); pair++) {(pair->second)->Write();}
   for (map<int, TH1F*>::const_iterator pair = histsPFDRST.begin(); pair != histsPFDRST.end(); pair++) {(pair->second)->Write();}
   for (map<int, TH1F*>::const_iterator pair = histsPFDRSTC.begin(); pair != histsPFDRSTC.end(); pair++) {(pair->second)->Write();}
-  for (map<string, TH1F*>::const_iterator pair = histsRecoDRST.begin(); pair != histsRecoST.end(); pair++) {(pair->second)->Write();}
-  for (map<string, TH1F*>::const_iterator pair = histsRecoDRSTC.begin(); pair != histsRecoDRSTC.end(); pair++) {(pair->second)->Write();}
   for (map<string, TH1F*>::const_iterator pair = histsMotherST.begin(); pair != histsMotherST.end(); pair++) {(pair->second)->Write();}
   for (map<string, TH1F*>::const_iterator pair = histsMotherSTC.begin(); pair != histsMotherSTC.end(); pair++) {(pair->second)->Write();}
-  h_genDR.Write();
+  for (map<int, TH1F*>::const_iterator pair = histsGenDRST.begin(); pair != histsGenDRST.end(); pair++) {(pair->second)->Write();}
+  for (map<int, TH1F*>::const_iterator pair = histsGenDRSTC.begin(); pair != histsGenDRSTC.end(); pair++) {(pair->second)->Write();}
+  for (map<int, TH1F*>::const_iterator pair = histsPFDRST.begin(); pair != histsPFDRST.end(); pair++) {(pair->second)->Write();}
+  for (map<int, TH1F*>::const_iterator pair = histsPFDRSTC.begin(); pair != histsPFDRSTC.end(); pair++) {(pair->second)->Write();}
+
   h_muEtaPhi.Write();
   OutFile_->Close();
 }
