@@ -1,0 +1,187 @@
+// A cms3 looper to compare delta-beta and effective area pileup corrections
+
+#include <iostream>
+#include <assert.h>
+#include "ScanChain.h"
+
+using namespace std;
+using namespace tas;
+
+void CMS3Looper::ScanChain (TChain * tree, const char* outname) {
+  TH1::SetDefaultSumw2(true);
+
+  // Book histograms
+  TH1F h_islost("h_islost","Lost Tracks",3,0,3);
+  TH1F h_isPF("h_isPF","PF Cand Tracks",3,0,3);
+  TH1F h_GTonly("h_GTonly","Neither",3,0,3);
+  TH2F h_etaphi("h_etaphi","#eta-#phi of Long Tracks;#eta;#phi",100,-2.4,2.4,180,-ROOT::Math::Pi(),ROOT::Math::Pi());
+  TH1F h_layers("h_layers","Tracker Layers with Measurement",16,0,16);
+  h_islost.GetXaxis()->SetBinLabel(1,"Pixel");
+  h_islost.GetXaxis()->SetBinLabel(2,"TrkShort");
+  h_islost.GetXaxis()->SetBinLabel(3,"TrkLong");
+  h_isPF.GetXaxis()->SetBinLabel(1,"Pixel");
+  h_isPF.GetXaxis()->SetBinLabel(2,"TrkShort");
+  h_isPF.GetXaxis()->SetBinLabel(3,"TrkLong");
+  h_GTonly.GetXaxis()->SetBinLabel(1,"Pixel");
+  h_GTonly.GetXaxis()->SetBinLabel(2,"TrkShort");
+  h_GTonly.GetXaxis()->SetBinLabel(3,"TrkLong");
+  h_islost.SetLineWidth(3);
+  h_isPF.SetLineWidth(3);
+  h_GTonly.SetLineWidth(3);
+  h_islost.SetLineColor(kRed);
+  h_isPF.SetLineColor(kBlue);
+  h_GTonly.SetLineColor(kGreen);
+
+  cms3.Init(tree);
+  const unsigned int nEvents = tree->GetEntries();
+  const unsigned int event_max = nEvents;
+
+  for (unsigned int event = 0; event < event_max; event++) {
+    if ( (event+1) % 1000 == 0 ) cout << 100. * event / event_max << "%" << endl;
+    tree->LoadTree(event);
+    cms3.GetEntry(event);
+    
+
+    for (unsigned int i_it = 0; i_it < cms3.isotracks_p4().size(); i_it++) {
+      // Veto dead cells
+      bool crossedDeadCell = false;
+      for (vector<unsigned int>::const_iterator ecal_it = cms3.isotracks_crossedEcalStatus().at(i_it).begin(); ecal_it != cms3.isotracks_crossedEcalStatus().at(i_it).end(); ecal_it++) {
+	if (*ecal_it > 0) {crossedDeadCell = true; break;}
+      }
+      if (crossedDeadCell) continue;
+      for (vector<unsigned int>::const_iterator hcal_it = cms3.isotracks_crossedHcalStatus().at(i_it).begin(); hcal_it != cms3.isotracks_crossedHcalStatus().at(i_it).end(); hcal_it++) {
+	if (*hcal_it > 0) {crossedDeadCell = true; break;}
+      }
+      if (crossedDeadCell) continue;
+
+      const float eta = fabs(cms3.isotracks_p4().at(i_it).eta());
+      if (eta < 1.6 && eta > 1.38) continue;
+
+      bool genOverlap = false;
+      for (unsigned int i_gen = 0; i_gen < cms3.genps_p4().size(); i_gen++) {
+	const int genID = abs(cms3.genps_id().at(i_gen));
+	if (genID != 11 && genID != 13 && genID != 15) continue;
+	const int motherID = abs(cms3.genps_id_mother().at(i_gen));
+	if (motherID != 23 && motherID != 24 && motherID != 25) continue;
+	const int status = cms3.genps_status().at(i_gen);
+	if (status != 23 && !(genID == 15 && status == 2)) continue;
+	if (DeltaR(cms3.genps_p4().at(i_gen), cms3.isotracks_p4().at(i_it)) < 0.1) {genOverlap = true; break;}
+      }
+      if (genOverlap) continue;
+
+      bool recoOverlap = false;
+      for (unsigned int i_el = 0; i_el < cms3.els_p4().size(); i_el++) {
+	if (cms3.els_p4().at(i_el).pt() < 10) continue;
+	if (!electronID(i_el,id_level_t::HAD_veto_noiso_v4) || !electronID(i_el,id_level_t::HAD_veto_v4)) continue;
+	if (DeltaR(cms3.els_p4().at(i_el),cms3.isotracks_p4().at(i_it)) < 0.1) {recoOverlap = true; break;}
+      }
+      if (recoOverlap) continue;
+      for (unsigned int i_mu = 0; i_mu < cms3.mus_p4().size(); i_mu++) {
+	if (cms3.mus_p4().at(i_mu).pt() < 10) continue;
+	if (!muonID(i_mu,id_level_t::HAD_loose_noiso_v4) || muonID(i_mu,id_level_t::HAD_loose_v4)) continue;
+	if (DeltaR(cms3.mus_p4().at(i_mu),cms3.isotracks_p4().at(i_it)) < 0.1) {recoOverlap = true; break;}
+      }
+      if (recoOverlap) continue;
+
+      int thisID = abs(cms3.isotracks_particleId()[i_it]);
+      if (thisID == 11 || thisID == 13) continue;
+
+      const bool PixEqTracker = cms3.isotracks_pixelLayersWithMeasurement().at(i_it) == cms3.isotracks_trackerLayersWithMeasurement().at(i_it);
+      const bool PixLtTracker = cms3.isotracks_pixelLayersWithMeasurement().at(i_it) < cms3.isotracks_trackerLayersWithMeasurement().at(i_it);
+      const float pt = cms3.isotracks_p4().at(i_it).pt();
+      const bool ptSel = pt > 15;
+      const bool etaSel = eta < 2.4;
+      const float dxy = fabs(cms3.isotracks_dxy().at(i_it));
+      const bool dxySel = dxy < 0.02;
+      const bool dxySelTight = dxy < 0.01;
+      const float dz = fabs(cms3.isotracks_dz().at(i_it));
+      const bool dzSel = dz < 0.05;
+      const float pfNeutralSum = cms3.isotracks_pfNeutralSum().at(i_it);
+      const bool NeuIso0p05Sel = pfNeutralSum < 10;
+      const bool NeuRelIso0p05Sel = pfNeutralSum / pt < 0.1;
+      const bool notLepOverlapSel = !cms3.isotracks_lepOverlap().at(i_it);
+      const float nearestPF_DR = cms3.isotracks_nearestPF_DR().at(i_it);
+      const int nearestPF_id = abs(cms3.isotracks_nearestPF_id().at(i_it));
+      const bool nearestPFSel = ! (nearestPF_DR < 0.1 && (nearestPF_id == 11 || nearestPF_id == 13));
+      const float absiso_corr = cms3.isotracks_pfIso_ch().at(i_it) + max(0.0, cms3.isotracks_pfIso_nh().at(i_it) + cms3.isotracks_pfIso_em().at(i_it) - 0.5 * cms3.isotracks_pfIso_db().at(i_it));
+      const float reliso = absiso_corr / pt;
+      const bool isoSel = absiso_corr < 10;
+      const bool relisoSel = reliso < 0.2;
+      const bool pixHitsSel = isotracks_numberOfValidPixelHits().at(i_it) >= 2;
+      const bool pixLayersSel = isotracks_pixelLayersWithMeasurement().at(i_it) >= 2;
+      const bool lostInnerHitsSel = isotracks_numberOfLostHitsInner().at(i_it) == 0;
+      const bool lostInnerPixHitsSel = isotracks_numberOfLostPixelHitsInner().at(i_it) == 0;
+      const bool lostOuterHitsSel = isotracks_numberOfLostHitsOuter().at(i_it) >= 2;
+      const float pterr = cms3.isotracks_pterr().at(i_it);
+      const float pterrOverPt2 = pterr / (pt*pt);
+      const bool pterrSel = pterrOverPt2 <= 0.2;
+      const bool pterrSelTight = pterrOverPt2 <= 0.02;
+      const bool pterrSelSuperTight = pterrOverPt2 <= 0.005;
+      const bool shortSel = cms3.isotracks_trackerLayersWithMeasurement().at(i_it) < 7;
+      const bool isHighPurity = cms3.isotracks_isHighPurityTrack().at(i_it);
+
+      if (! (ptSel && etaSel && dxySel && dzSel && NeuIso0p05Sel && NeuRelIso0p05Sel && notLepOverlapSel && nearestPFSel && relisoSel && isoSel && pixHitsSel && pixLayersSel &&
+	     lostInnerHitsSel && lostInnerPixHitsSel && lostOuterHitsSel && isHighPurity)) continue;
+
+      int type = -1;
+      if (PixEqTracker && pterrSel) {
+	type = 0;
+      }
+      else if (PixLtTracker && shortSel && dxySelTight && pterrSelTight) {
+	type = 1;
+      }
+      else if (PixLtTracker && !shortSel && dxySelTight && pterrSelSuperTight) {
+	type = 2;
+	h_etaphi.Fill(cms3.isotracks_p4().at(i_it).eta(),cms3.isotracks_p4().at(i_it).phi());
+      }
+
+      if (type < 0) continue;
+
+      h_layers.Fill(cms3.isotracks_trackerLayersWithMeasurement().at(i_it));
+
+      if (cms3.isotracks_isLostTrack().at(i_it)) {
+	h_islost.Fill(type);
+      } else if (cms3.isotracks_isPFCand().at(i_it)) {
+	h_isPF.Fill(type);
+      } else {
+	h_GTonly.Fill(type);
+      }
+
+    }
+
+  } // Event Loop
+
+  cout << "Finished event loop." << endl;
+
+  // Post-processing
+
+  cout << "About to save histograms." << endl;
+
+  TFile * OutFile_ = new TFile(Form("%s.root", outname), "RECREATE");
+  OutFile_->cd();
+  h_islost.Write();
+  h_isPF.Write();
+  h_GTonly.Write();
+  h_etaphi.Write();
+  h_layers.Write();
+  OutFile_->Close();
+  
+}
+
+int main (int argc, char ** argv) {
+  if (argc < 3) {
+    cout << "USAGE: ./ScanChain.exe <tag> <filename>" << endl;
+    return 1;
+  }
+
+  char * outfileid = argv[1]; 
+  char * filename = argv[2]; 
+
+  TChain *chain = new TChain("Events");
+  chain->Add(filename);
+  cout << "Added " << filename << " to TChain" << endl;
+
+  CMS3Looper cms3l;
+  cms3l.ScanChain(chain,outfileid);
+  return 0;
+}
