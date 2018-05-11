@@ -62,9 +62,9 @@ $(LIB):	$(DICT) $(OBJECTS)
 	echo "$(LINKER) -shared -o $@ $(OBJECTS) $(DICT) $(LINKERFLAGS)"; \
 	$(LINKER) -shared -o $@ $(OBJECTS) $(DICT) $(LINKERFLAGS)
 
-LinkDef_out.cxx: LinkDef.h
+LinkDef_out.cxx: $(CMSROOT)/interface/LinkDef.h
 	$(QUIET) echo "Making CINT dictionaries"; \
-	rootcint -f LinkDef_out.cc -c -p $(DICTINCLUDE)  LinkDef.h; \
+	rootcint -f LinkDef_out.cc -c -p $(DICTINCLUDE)  $(CMSROOT)/interface/LinkDef.h; \
 	cat LinkDef_out.cc > LinkDef_out.cxx; rm LinkDef_out.cc
 
 # the option "-Wl,-rpath,./" adds ./ to the runtime search path for libraries
