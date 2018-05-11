@@ -44,13 +44,23 @@ if (not os.path.exists(outdir)): os.mkdir(outdir)
 selection_colors=[ROOT.kGreen,ROOT.kBlue,ROOT.kRed,ROOT.kBlack]
 
 samples=["QCDHT300to500","QCDHT1000to1500","DYHT200to400","DYHT800to1200","TTSL"]
+samples_alt=["QCDHT300to500_AOD","QCDHT300to500_2016","DYHT800to1200_AOD"]
 colors_sample=[ROOT.kGreen+4,ROOT.kGreen,ROOT.kBlue,ROOT.kCyan,ROOT.kMagenta]
 sample_colors = dict(zip(samples,colors_sample))
+colors_sample_alt=[ROOT.kYellow,ROOT.kBlack,ROOT.kOrange]
+sample_colors_alt = dict(zip(samples_alt,colors_sample_alt))
 
 for sample in samples:
     sample_outdir = outdir+"/"+sample
     if (not os.path.exists(sample_outdir)): os.mkdir(sample_outdir)
     for od in ["/Layer","/Sig","/RecoDRe","/RecoDRmu","MotherIDe","MotherIDmu","genDR","PFDR"]:
+        thisOutdir = sample_outdir + od
+        if (not os.path.exists(thisOutdir)): os.mkdir(thisOutdir)
+
+for sample in samples_alt:
+    sample_outdir = outdir+"/"+sample
+    if (not os.path.exists(sample_outdir)): os.mkdir(sample_outdir)
+    for od in ["/Layer","/Sig"]:
         thisOutdir = sample_outdir + od
         if (not os.path.exists(thisOutdir)): os.mkdir(thisOutdir)
 
@@ -104,7 +114,7 @@ for sample in samples:
     for layer in layers:
         layerDict = {}
         for gs in genIDsuffixes:
-            hn = "h_RecoDR{0}e_{1}".format(layer,gs)
+            hn = "h_recoDR{0}e_{1}".format(layer,gs)
             layerDict[gs] = utils.GetUnderOverHist(f,hn,color=gen_colors[gs])
             layerDict[gs].SetDirectory(0)
             layerDict[gs].SetFillColor(gen_colors[gs])
@@ -119,12 +129,25 @@ for sample in samples:
     for layer in layers:
         layerDict = {}
         for gs in genIDsuffixes:
-            hn = "h_RecoDR{0}mu_{1}".format(layer,gs)
+            hn = "h_recoDR{0}mu_{1}".format(layer,gs)
             layerDict[gs] = utils.GetUnderOverHist(f,hn,color=gen_colors[gs])
             layerDict[gs].SetDirectory(0)
             layerDict[gs].SetFillColor(gen_colors[gs])
         dictToAdd[layer] = layerDict
     histdictReco_e[sample]=dictToAdd
+    f.Close()
+
+histdictLayerAlt = {}
+for sample in samples_alt:
+    f = ROOT.TFile.Open("{0}/{1}.root".format(indir,sample))
+    toAdd = []
+    for layer in layers:
+        hn = "h_layers{0}".format(layer)
+        hist = utils.GetUnderOverHist(f,hn,color=sample_colors_alt[sample])
+        hist.SetDirectory(0)
+        hist.SetFillColor()
+        toAdd.append(hist)
+    histdictLayerAlt[sample]=toAdd
     f.Close()
 
 # Layer distributions
@@ -168,6 +191,12 @@ for sample in samples:
         h.SetFillColor(selection_colors[i])
     nh.Overlay(stackhistsST,layertags,"{0}/selectionsST_{1}.png".format(sample_outdir,sample),True,1)
     nh.Overlay(stackhistsSTC,layertags,"{0}/selectionsSTC_{1}.png".format(sample_outdir,sample),True,1)
+    if sample == "QCDHT300to500":
+        fulllist = stackhistsST + stackhistsSTC
+        outname = ["ST0","ST1","ST2","ST3","ST4","STC0","STC1","STC2","STC3","STC4"]
+        for i in xrange(len(fulllist)):            
+            histsToOverlay = [stackhistsST[i],histdictLayerAlt["QCDHT300to500_AOD"][i],histdictLayerAlt["QCDHT300to500_2016"][i]]
+            nh.Overlay(histsToOverlay,["2017 CMS4","2017 AOD","2016 AOD"],"{0}/QCDHT300to500layer{1}_compare.png".format(outdir,outname[i]),True,1)
 
 # signatures
 for sample in samples:
